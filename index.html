@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Added viewport meta tag -->
+    <title>Sign Language Translator</title>
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+    <!-- Loading Overlay Stylesheet -->
+    <link rel="stylesheet" href="assets/style/loading.css">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <img src="assets/gifs/loading.gif" alt="Loading..." class="loading-gif">
+        <p id="loading-message">Loading, please wait...</p>
+    </div>
+
+    <div class="container">
+        <div class="text-box">
+            <p id="translated-text">Translated text will appear here</p>
+        </div>
+        <div class="video-box">
+            <div class="video-container">
+                <video id="webcam" autoplay playsinline></video>
+                <canvas id="output_canvas"></canvas>
+            </div>
+            <div class="controls">
+                <button id="webcamButton">Enable Webcam</button>
+                <select id="cameraSelect"></select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay Script -->
+    <script type="module" src="assets/js/loading.js"></script>
+    <!-- Main Script -->
+    <script type="module" src="script.js"></script>
+</body>
+</html>
