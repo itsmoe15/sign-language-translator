@@ -14,11 +14,21 @@ let webcamRunning = false;
 const videoElement = document.getElementById("webcam");
 const canvasElement = document.getElementById("output_canvas");
 const canvasCtx = canvasElement.getContext("2d");
-const gestureOutput = document.getElementById("translated-text");
+const latestGestureOutput = document.getElementById("latest-gesture");
+const accumulatedGesturesOutput = document.getElementById("accumulated-gestures");
 enableWebcamButton = document.getElementById("webcamButton");
 const cameraSelect = document.getElementById("cameraSelect");
+const clearButton = document.getElementById("clearButton"); // Clear Button
 
 let currentStream;
+
+// Variables to store gestures
+let accumulatedGestures = "";
+let previousGesture = null;
+let gestureCooldown = false; // To prevent rapid re-adding
+
+// Define Confidence Threshold
+const CONFIDENCE_THRESHOLD = 0.8; // Adjust as needed (0.0 to 1.0)
 
 // Function to initialize the gesture recognizer
 const createGestureRecognizer = async () => {
@@ -153,12 +163,36 @@ async function predictWebcam() {
         }
     }
 
-    // Update gesture output
+    // Update gesture outputs
     if (results && results.gestures && results.gestures.length > 0) {
-        const categoryName = results.gestures[0][0].categoryName;
-        gestureOutput.innerText = `Gesture: ${categoryName}`;
+        const gesture = results.gestures[0][0];
+        const categoryName = gesture.categoryName;
+        const confidence = gesture.score; // Assuming 'score' represents confidence
+
+        latestGestureOutput.innerText = `Latest Gesture: ${categoryName} (Confidence: ${(confidence * 100).toFixed(2)}%)`;
+
+        // Check if the gesture meets the confidence threshold
+        if (confidence >= CONFIDENCE_THRESHOLD) {
+            // Check if the gesture has changed
+            if (categoryName !== previousGesture && !gestureCooldown) {
+                accumulatedGestures += `${categoryName} `;
+                accumulatedGesturesOutput.innerText = `Accumulated Gestures: ${accumulatedGestures.trim()}`;
+                previousGesture = categoryName;
+
+                // Implement a cooldown period to prevent immediate re-adding
+                gestureCooldown = true;
+                setTimeout(() => {
+                    gestureCooldown = false;
+                }, 1000); // 1 second cooldown; adjust as needed
+            }
+        } else {
+            // Optionally, inform the user about low confidence
+            console.warn(`Gesture "${categoryName}" detected with low confidence (${(confidence * 100).toFixed(2)}%). Ignored.`);
+            // You can also display this information in the UI if desired
+        }
     } else {
-        gestureOutput.innerText = "No gesture detected";
+        latestGestureOutput.innerText = "No gesture detected";
+        previousGesture = null; // Reset previous gesture when none is detected
     }
 
     // Continue the loop if webcam is running
@@ -174,10 +208,58 @@ if (hasGetUserMedia()) {
     showErrorOverlay("Your browser does not support webcam access.");
 }
 
-// Adjust canvas size on window resize to maintain aspect ratio
-window.addEventListener('resize', () => {
-    if (videoElement.videoWidth && videoElement.videoHeight) {
-        canvasElement.width = videoElement.videoWidth;
-        canvasElement.height = videoElement.videoHeight;
+// **Optional:** Add functionality to clear accumulated gestures
+if (clearButton) {
+    clearButton.addEventListener("click", () => {
+        accumulatedGestures = "";
+        accumulatedGesturesOutput.innerText = "Accumulated gestures will appear here";
+        previousGesture = null; // Reset previous gesture as well
+    });
+}
+
+const confidenceWarning = document.getElementById("confidence-warning"); // New Element
+
+// Inside the predictWebcam function, update the confidence check section:
+
+if (results && results.gestures && results.gestures.length > 0) {
+    const gesture = results.gestures[0][0];
+    const categoryName = gesture.categoryName;
+    const confidence = gesture.score; // Assuming 'score' represents confidence
+
+    latestGestureOutput.innerText = `Latest Gesture: ${categoryName} (Confidence: ${(confidence * 100).toFixed(2)}%)`;
+
+    // Check if the gesture meets the confidence threshold
+    if (confidence >= CONFIDENCE_THRESHOLD) {
+        // Hide the confidence warning if it's visible
+        if (!confidenceWarning.classList.contains("hidden")) {
+            confidenceWarning.classList.add("hidden");
+        }
+
+        // Check if the gesture has changed
+        if (categoryName !== previousGesture && !gestureCooldown) {
+            accumulatedGestures += `${categoryName} `;
+            accumulatedGesturesOutput.innerText = `Accumulated Gestures: ${accumulatedGestures.trim()}`;
+            previousGesture = categoryName;
+
+            // Implement a cooldown period to prevent immediate re-adding
+            gestureCooldown = true;
+            setTimeout(() => {
+                gestureCooldown = false;
+            }, 1000); // 1 second cooldown; adjust as needed
+        }
+    } else {
+        // Show the confidence warning
+        if (confidenceWarning.classList.contains("hidden")) {
+            confidenceWarning.classList.remove("hidden");
+        }
+        console.warn(`Gesture "${categoryName}" detected with low confidence (${(confidence * 100).toFixed(2)}%). Ignored.`);
     }
-});
+} else {
+    latestGestureOutput.innerText = "No gesture detected";
+    previousGesture = null; // Reset previous gesture when none is detected
+
+    // Hide the confidence warning if it's visible
+    if (!confidenceWarning.classList.contains("hidden")) {
+        confidenceWarning.classList.add("hidden");
+    }
+}

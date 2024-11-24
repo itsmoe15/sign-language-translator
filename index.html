@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Added viewport meta tag -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Added viewport meta tag for responsiveness -->
     <title>Sign Language Translator</title>
     <!-- Main Stylesheet -->
     <link rel="stylesheet" href="styles.css">
@@ -18,7 +18,9 @@
 
     <div class="container">
         <div class="text-box">
-            <p id="translated-text">Translated text will appear here</p>
+            <p id="latest-gesture">Latest gesture will appear here</p>
+            <p id="accumulated-gestures">Accumulated gestures will appear here</p>
+            <p id="confidence-warning" class="hidden">Gesture detected with low confidence. Please try again.</p> <!-- New Warning Paragraph -->
         </div>
         <div class="video-box">
             <div class="video-container">
@@ -28,6 +30,7 @@
             <div class="controls">
                 <button id="webcamButton">Enable Webcam</button>
                 <select id="cameraSelect"></select>
+                <button id="clearButton">Clear</button> <!-- Clear Button -->
             </div>
         </div>
     </div>

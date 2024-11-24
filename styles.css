@@ -1,3 +1,5 @@
+/* styles.css */
+
 /* Reset default browser styles */
 * {
     box-sizing: border-box;
@@ -80,6 +82,37 @@ body {
     font-size: 1.2em;
 }
 
+.text-box p {
+    margin: 10px 0;
+}
+
+#latest-gesture {
+    font-size: 1.2em;
+    margin-bottom: 5px;
+}
+
+#accumulated-gestures {
+    font-size: 1.2em;
+    min-height: 40px; /* Ensures space even when empty */
+    word-wrap: break-word;
+    overflow-wrap: break-word; /* For better compatibility */
+    white-space: pre-wrap; /* Preserves spacing */
+    background-color: #2E2E2E; /* Slightly different background for distinction */
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+#confidence-warning {
+    color: #FFD700; /* Gold color for visibility */
+    font-size: 1em;
+    margin-top: 10px;
+}
+
+.hidden {
+    display: none;
+}
+
 .video-box {
     background-color: #1E1E1E;
     padding: 15px;
@@ -157,6 +190,22 @@ body {
     border-color: #0056b3;
 }
 
+#clearButton {
+    background-color: #DC3545; /* Red color for clear action */
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1em;
+    margin-top: 10px; /* Space above the button */
+}
+
+#clearButton:hover {
+    background-color: #a71d2a;
+}
+
 #translated-text {
     font-size: 1.5em;
 }
@@ -180,9 +229,13 @@ body {
         font-size: 1.2em;
     }
 
-    #webcamButton, #cameraSelect {
+    #webcamButton, #cameraSelect, #clearButton {
         font-size: 0.9em;
         padding: 10px 16px;
+    }
+
+    #latest-gesture, #accumulated-gestures, #confidence-warning {
+        font-size: 1em;
     }
 }
 
@@ -200,8 +253,12 @@ body {
         font-size: 1em;
     }
 
-    #webcamButton, #cameraSelect {
+    #webcamButton, #cameraSelect, #clearButton {
         font-size: 0.8em;
         padding: 8px 14px;
+    }
+
+    #latest-gesture, #accumulated-gestures, #confidence-warning {
+        font-size: 0.9em;
     }
 }
