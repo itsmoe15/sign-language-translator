@@ -17,7 +17,7 @@ export function initializeLoadingOverlay() {
                 loadingMessages = text.split('\n').filter(line => line.trim() !== '');
                 // Start updating the loading message
                 updateLoadingMessage();
-                loadingMessageInterval = setInterval(updateLoadingMessage, getRandomInt(5000, 7000));
+                loadingMessageInterval = setInterval(updateLoadingMessage, 10000);
             })
             .catch(error => {
                 console.error('Error loading messages:', error);
