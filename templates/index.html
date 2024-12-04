@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Added viewport meta tag for responsiveness -->
     <title>Sign Language Translator</title>
     <!-- Main Stylesheet -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <!-- Loading Overlay Stylesheet -->
-    <link rel="stylesheet" href="assets/style/loading.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/style/loading.css') }}">
 </head>
 <body>
     <!-- Loading Overlay -->
     <div id="loading-overlay">
-        <img src="assets/gifs/loading.gif" alt="Loading..." class="loading-gif">
+        <img src="{{ url_for('static', filename='assets/gifs/loading.gif') }}" alt="Loading..." class="loading-gif">
         <p id="loading-message">Loading, please wait...</p>
     </div>
 
@@ -20,6 +20,7 @@
         <div class="text-box">
             <p id="latest-gesture">Latest gesture will appear here</p>
             <p id="accumulated-gestures">Accumulated gestures will appear here</p>
+            <p id="predicted-word">Predicted word will appear here</p>
             <p id="confidence-warning" class="hidden">Gesture detected with low confidence. Please try again.</p> <!-- New Warning Paragraph -->
         </div>
         <div class="video-box">
@@ -36,8 +37,8 @@
     </div>
 
     <!-- Loading Overlay Script -->
-    <script type="module" src="assets/js/loading.js"></script>
+    <script type="module" src="{{ url_for('static', filename='assets/js/loading.js') }}"></script>
     <!-- Main Script -->
-    <script type="module" src="script.js"></script>
+    <script type="module" src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

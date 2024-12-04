@@ -10,7 +10,7 @@ export function initializeLoadingOverlay() {
 
     // Function to fetch loading messages from the text file
     function loadLoadingMessages() {
-        fetch('assets/messages/loading_messages.txt')
+        fetch('./static/assets/messages/loading_messages.txt')
             .then(response => response.text())
             .then(text => {
                 // Split the text into an array of messages

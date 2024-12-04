@@ -24,11 +24,52 @@ let currentStream;
 
 // Variables to store gestures
 let accumulatedGestures = "";
-let previousGesture = null;
-let gestureCooldown = false; // To prevent rapid re-adding
+let gestureCount = 0;
+let gestureCaptureTimeout = null;
+let currentGesture = null;
+
 
 // Define Confidence Threshold
-const CONFIDENCE_THRESHOLD = 0.8; // Adjust as needed (0.0 to 1.0)
+let waitTime = 1.5;
+const CONFIDENCE_THRESHOLD = 0.65; // Adjust as needed (0.0 to 1.0)
+
+// Map from gesture category names to letters
+const gestureToLetterMap = {
+    'ain': 'ع',
+    'al': 'go',
+    'aleff': 'ا',
+    'bb': 'ب',
+    'dal': 'د',
+    'dha': 'ذ',
+    'dhad': 'ض',
+    'fa': 'ف',
+    'gaaf': 'ق',
+    'ghain': 'غ',
+    'ha': 'ح',
+    'haa': 'ه',
+    'jeem': 'ج',
+    'kaaf': 'ك',
+    'khaa': 'خ',
+    'la': 'ل',
+    'laam': 'ل',
+    'meem': 'م',
+    'nun': 'ن',
+    'ra': 'ر',
+    'saad': 'ص',
+    'seen': 'س',
+    'sheen': 'ش',
+    'ta': 'ت',
+    'taa': 'ط',
+    'thaa': 'ث',
+    'thal': 'ظ',
+    'toot': ' ',
+    'waw': 'و',
+    'ya': 'ي',
+    'yaa': 'ي',
+    'zay': 'ز'
+};
+
+const confidenceWarning = document.getElementById("confidence-warning"); // Confidence warning element
 
 // Function to initialize the gesture recognizer
 const createGestureRecognizer = async () => {
@@ -38,7 +79,7 @@ const createGestureRecognizer = async () => {
         );
         gestureRecognizer = await GestureRecognizer.createFromOptions(vision, {
             baseOptions: {
-                modelAssetPath: "moe_ar_sign_language_model.task",
+                modelAssetPath: "/static/moe_ar_sign_language_model.task", // Updated path
                 delegate: "GPU"
             },
             runningMode: runningMode
@@ -167,36 +208,122 @@ async function predictWebcam() {
     if (results && results.gestures && results.gestures.length > 0) {
         const gesture = results.gestures[0][0];
         const categoryName = gesture.categoryName;
-        const confidence = gesture.score; // Assuming 'score' represents confidence
+        const confidence = gesture.score;
 
-        latestGestureOutput.innerText = `Latest Gesture: ${categoryName} (Confidence: ${(confidence * 100).toFixed(2)}%)`;
+        const mappedLetter = mapGestureToLetter(categoryName);
+
+        latestGestureOutput.innerText = `Latest Gesture: ${mappedLetter} (Confidence: ${(confidence * 100).toFixed(2)}%)`;
 
         // Check if the gesture meets the confidence threshold
         if (confidence >= CONFIDENCE_THRESHOLD) {
-            // Check if the gesture has changed
-            if (categoryName !== previousGesture && !gestureCooldown) {
-                accumulatedGestures += `${categoryName} `;
-                accumulatedGesturesOutput.innerText = `Accumulated Gestures: ${accumulatedGestures.trim()}`;
-                previousGesture = categoryName;
-
-                // Implement a cooldown period to prevent immediate re-adding
-                gestureCooldown = true;
-                setTimeout(() => {
-                    gestureCooldown = false;
-                }, 1000); // 1 second cooldown; adjust as needed
+            // Hide the confidence warning if it's visible
+            if (!confidenceWarning.classList.contains("hidden")) {
+                confidenceWarning.classList.add("hidden");
             }
+
+            if (categoryName !== currentGesture) {
+                // The gesture has changed
+                currentGesture = categoryName;
+
+                // Clear any existing timer
+                if (gestureCaptureTimeout) {
+                    clearTimeout(gestureCaptureTimeout);
+                }
+
+                // Start a new timer
+                gestureCaptureTimeout = setTimeout(() => {
+                    // After 3 seconds, if the gesture hasn't changed, capture it
+                    accumulatedGestures += mappedLetter;
+                    accumulatedGesturesOutput.innerText = `Accumulated Gestures: ${accumulatedGestures.trim()}`;
+
+                    gestureCount += 1;  // Increment the gesture counter
+
+                    // Check if we've accumulated enough gestures to send
+                    if (gestureCount >= 3) { // Adjust as needed (3 or 4)
+                        sendGesturesToServer(accumulatedGestures.trim());
+                        // Do not clear accumulatedGestures; keep it displayed
+                        gestureCount = 0; // Reset gesture count
+                    }
+
+                    // Reset current gesture and timer
+                    currentGesture = null;
+                    gestureCaptureTimeout = null;
+                }, waitTime*1000); // 3 seconds
+            }
+            // Else, the gesture hasn't changed, do nothing (wait for timer to elapse)
         } else {
-            // Optionally, inform the user about low confidence
-            console.warn(`Gesture "${categoryName}" detected with low confidence (${(confidence * 100).toFixed(2)}%). Ignored.`);
-            // You can also display this information in the UI if desired
+            // Confidence below threshold
+            // Show the confidence warning
+            if (confidenceWarning.classList.contains("hidden")) {
+                confidenceWarning.classList.remove("hidden");
+            }
+            // Reset current gesture and timer
+            if (gestureCaptureTimeout) {
+                clearTimeout(gestureCaptureTimeout);
+                gestureCaptureTimeout = null;
+            }
+            currentGesture = null;
         }
     } else {
+        // No gesture detected
         latestGestureOutput.innerText = "No gesture detected";
-        previousGesture = null; // Reset previous gesture when none is detected
+        // Hide the confidence warning if it's visible
+        if (!confidenceWarning.classList.contains("hidden")) {
+            confidenceWarning.classList.add("hidden");
+        }
+        // Reset current gesture and timer
+        if (gestureCaptureTimeout) {
+            clearTimeout(gestureCaptureTimeout);
+            gestureCaptureTimeout = null;
+        }
+        currentGesture = null;
     }
 
     // Continue the loop if webcam is running
     window.requestAnimationFrame(predictWebcam);
+}
+
+// Map gesture category names to letters
+function mapGestureToLetter(categoryName) {
+    return gestureToLetterMap[categoryName] || categoryName;
+}
+
+// Define the function to send gestures to the server
+
+function sendGesturesToServer(gestures) {
+    fetch('/predict', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ gestures: gestures })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Handle the response from the server
+        console.log('Prediction:', data.prediction);
+        // Check if there's an error
+        if (data.error) {
+            console.error('Server error:', data.error);
+            return;
+        }
+        // Display the predicted word in the UI
+        const predictedWordOutput = document.getElementById('predicted-word');
+        const mostLikelyWord = data.prediction.most_likely_word; // Correctly access the field
+        
+        if (predictedWordOutput) {
+            predictedWordOutput.innerText = `Predicted Word: ${mostLikelyWord}`;
+        } else {
+            // Create the element if it doesn't exist
+            const newElement = document.createElement('p');
+            newElement.id = 'predicted-word';
+            newElement.innerText = `Predicted Word: ${mostLikelyWord}`;
+            accumulatedGesturesOutput.parentNode.insertBefore(newElement, accumulatedGesturesOutput.nextSibling);
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
 }
 
 // Initialize webcam access when the page loads
@@ -208,58 +335,22 @@ if (hasGetUserMedia()) {
     showErrorOverlay("Your browser does not support webcam access.");
 }
 
-// **Optional:** Add functionality to clear accumulated gestures
+// Add functionality to clear accumulated gestures
 if (clearButton) {
     clearButton.addEventListener("click", () => {
         accumulatedGestures = "";
         accumulatedGesturesOutput.innerText = "Accumulated gestures will appear here";
-        previousGesture = null; // Reset previous gesture as well
+        currentGesture = null; // Reset current gesture as well
+        gestureCount = 0; // Reset gesture count
+        if (gestureCaptureTimeout) {
+            clearTimeout(gestureCaptureTimeout);
+            gestureCaptureTimeout = null;
+        }
+        // Clear predicted word display
+        const predictedWordOutput = document.getElementById('predicted-word');
+        if (predictedWordOutput) {
+            predictedWordOutput.innerText = "Predicted word will appear here";
+        }
     });
 }
 
-const confidenceWarning = document.getElementById("confidence-warning"); // New Element
-
-// Inside the predictWebcam function, update the confidence check section:
-
-if (results && results.gestures && results.gestures.length > 0) {
-    const gesture = results.gestures[0][0];
-    const categoryName = gesture.categoryName;
-    const confidence = gesture.score; // Assuming 'score' represents confidence
-
-    latestGestureOutput.innerText = `Latest Gesture: ${categoryName} (Confidence: ${(confidence * 100).toFixed(2)}%)`;
-
-    // Check if the gesture meets the confidence threshold
-    if (confidence >= CONFIDENCE_THRESHOLD) {
-        // Hide the confidence warning if it's visible
-        if (!confidenceWarning.classList.contains("hidden")) {
-            confidenceWarning.classList.add("hidden");
-        }
-
-        // Check if the gesture has changed
-        if (categoryName !== previousGesture && !gestureCooldown) {
-            accumulatedGestures += `${categoryName} `;
-            accumulatedGesturesOutput.innerText = `Accumulated Gestures: ${accumulatedGestures.trim()}`;
-            previousGesture = categoryName;
-
-            // Implement a cooldown period to prevent immediate re-adding
-            gestureCooldown = true;
-            setTimeout(() => {
-                gestureCooldown = false;
-            }, 1000); // 1 second cooldown; adjust as needed
-        }
-    } else {
-        // Show the confidence warning
-        if (confidenceWarning.classList.contains("hidden")) {
-            confidenceWarning.classList.remove("hidden");
-        }
-        console.warn(`Gesture "${categoryName}" detected with low confidence (${(confidence * 100).toFixed(2)}%). Ignored.`);
-    }
-} else {
-    latestGestureOutput.innerText = "No gesture detected";
-    previousGesture = null; // Reset previous gesture when none is detected
-
-    // Hide the confidence warning if it's visible
-    if (!confidenceWarning.classList.contains("hidden")) {
-        confidenceWarning.classList.add("hidden");
-    }
-}
