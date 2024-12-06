@@ -12,7 +12,7 @@ body {
     font-family: Arial, sans-serif;
     color: #FFFFFF; /* White text */
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
     min-height: 100vh;
 }
@@ -67,7 +67,7 @@ body {
     justify-content: center;
     padding: 20px;
     width: 100%;
-    max-width: 800px; /* Increased max-width for larger screens */
+    max-width: 900px; /* Increased max-width for larger screens */
 }
 
 .text-box {
@@ -210,7 +210,91 @@ body {
     font-size: 1.5em;
 }
 
+/*header component*/
+  header {
+        width: 100%;
+        height: 50px;
+        border-bottom: solid 1px rgba(0, 0, 0, 0.1);
+        font-family: 'Poppins', sans-serif;
+        background-color: #000000;
+    }
+
+    header .inner {
+        max-width: 1200px;
+        width: 90%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 0 auto;
+    }
+
+    header .logo img {
+        height: 50px;
+    }
+
+    header nav {
+        display: flex;
+        background-color: transparent;
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-around;
+    }
+
+    nav ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        width: 100%;
+        justify-content: flex-end;
+        gap: 0;
+    }
+
+    nav li {
+        width: auto;
+        text-align: center;
+    }
+
+    nav a {
+        display: block;
+        padding: 10px;
+        margin: 40px;
+        color: #f3f1f1;
+        font-size: 16px;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+        nav a {
+            padding: 10px;
+            margin: 10px;
+        }
+    }
+
+    nav .button {
+        background-color: #1ab26b;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+    nav .button:hover {
+        filter: brightness(1.2);
+    }
+/*header component*/
+
+
 /* Media Queries for Mobile Devices */
+@media (min-width: 600px) and (max-width: 768px) {
+    .container {
+        width: 500px;
+        padding: 10px;
+    }
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 10px;

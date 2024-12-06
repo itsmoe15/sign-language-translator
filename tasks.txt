@@ -1,0 +1,2 @@
+1-some addion css + header and dynamk pages 
+2- make page to learn about project and landing  + add bootstrap framwork of css 

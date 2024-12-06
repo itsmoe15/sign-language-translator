@@ -6,8 +6,14 @@
     <title>Sign Language Translator</title>
     <!-- Main Stylesheet -->
     <link rel="stylesheet" href="styles.css">
+    <!--main bootstrap css-->
+    
     <!-- Loading Overlay Stylesheet -->
     <link rel="stylesheet" href="assets/style/loading.css">
+     <!-- This is just a font that we'll be using. You can remove lines 12-14 if you don't want to use Poppins -->
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet"> 
 </head>
 <body>
     <!-- Loading Overlay -->
@@ -15,7 +21,41 @@
         <img src="assets/gifs/loading.gif" alt="Loading..." class="loading-gif">
         <p id="loading-message">Loading, please wait...</p>
     </div>
+    <!--header
+    <header>
+        <div class="inner">
+            <div class="logo">
+                <div>
+                    <img src="assets/gifs/1loading.gif" alt="Logo">
+                </div>
+            </div>
+            <nav id="nav-menu">
+                <ul>
+                    <li><span><a href="#" data-target="gr">home</a></span></li>
+                    <li><span><a href="#" data-target="about">about</a></span></li>
+                    <li><span><a href="#" data-target="history">History</a></span></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+-->
+    <!--header-->
+   
+<!-- Component -->
+<div id="about" class="component" style="display: none;">
+    <h1>About</h1>
+    <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Cupiditate architecto possimus explicabo numquam nulla, culpa, temporibus dolore asperiores dolorum amet voluptate sunt repellendus. Rem soluta voluptate, fugit reprehenderit incidunt assumenda?</p>
+</div>
+<div id="history" class="component" style="display: none;">
+    <h1>histroy</h1>
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore provident eum obcaecati pariatur delectus libero eligendi modi. Eaque ipsa accusamus sed maxime corrupti aliquam ullam quis dicta obcaecati, adipisci cumque.</p>
+</div>
+<!-- Component -->
 
+
+
+    <!--GR commponent-->
+    <div id="gr" class="component container" >
     <div class="container">
         <div class="text-box">
             <p id="latest-gesture">Latest gesture will appear here</p>
@@ -34,10 +74,61 @@
             </div>
         </div>
     </div>
+</div>
+        <!--GR commponent-->
+
+        <!--footer
+        <footer class="footer">
+            <p>&copy; 2024 . All rights reserved.</p>
+        </footer>
+        <style>
+            .footer {
+    background-color: #0d6efd; 
+    color: #fff; 
+    text-align: center; 
+    padding: 10px 0; 
+    position: relative;
+    margin-top: auto; 
+    bottom: 0; 
+    width: 100%; 
+    font-size: 14px; 
+}
+        </style>
+    -->
+        <!--footer-->
+        <!--jscoderoute
+        <script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const links = document.querySelectorAll('nav a');
+    const components = document.querySelectorAll('.component');
+
+    links.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault(); 
+            const target = e.target.getAttribute('data-target');
+
+            
+            components.forEach(component => {
+                component.style.display = 'none';
+            });
+
+            if (target) {
+                document.getElementById(target).style.display = 'block';
+            }
+        });
+    });
+});
+
+</script>
+
+
+        -->
 
     <!-- Loading Overlay Script -->
     <script type="module" src="assets/js/loading.js"></script>
     <!-- Main Script -->
     <script type="module" src="script.js"></script>
+    <!--bootstrap -->
+    
 </body>
 </html>
